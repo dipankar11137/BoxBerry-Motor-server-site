@@ -24,6 +24,12 @@ async function run() {
     const cameraCollection = client
       .db("boxBerry-motor")
       .collection("cameraProducts");
+    const carToolsCollection = client
+      .db("boxBerry-motor")
+      .collection("carTools");
+    const carToolsBookingCollection = client
+      .db("boxBerry-motor")
+      .collection("carToolsBooking");
 
     //  Camera products
     app.get("/cameraProducts", async (req, res) => {
@@ -39,6 +45,36 @@ async function run() {
       const query = { _id: ObjectId(id) };
       const booking = await cameraCollection.findOne(query);
       res.send(booking);
+    });
+
+    //  car Tools products
+    app.get("/carTools", async (req, res) => {
+      const query = {};
+      const cursor = carToolsCollection.find(query);
+      const products = await cursor.toArray();
+      res.send(products);
+    });
+
+    app.get("/carTools/:id", async (req, res) => {
+      const id = req.params.id;
+      // console.log(id);
+      const query = { _id: ObjectId(id) };
+      const booking = await carToolsCollection.findOne(query);
+      res.send(booking);
+    });
+    // car Booking
+    app.post("/carBooking", async (req, res) => {
+      const newProducts = req.body;
+      const result = await carToolsBookingCollection.insertOne(newProducts);
+      res.send(result);
+    });
+
+    // get car booking
+    app.get("/carBooking", async (req, res) => {
+      const query = {};
+      const cursor = carToolsBookingCollection.find(query);
+      const products = await cursor.toArray();
+      res.send(products);
     });
 
     //
