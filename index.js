@@ -76,6 +76,21 @@ async function run() {
       const products = await cursor.toArray();
       res.send(products);
     });
+    // car get one email
+    app.get("/carBooking/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email };
+      const cursor = carToolsBookingCollection.find(query);
+      const bookingEmail = await cursor.toArray();
+      res.send(bookingEmail);
+    });
+    //Delete car order item
+    app.delete("/carBooking/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await carToolsBookingCollection.deleteOne(query);
+      res.send(result);
+    });
 
     //
   } finally {
