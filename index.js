@@ -69,6 +69,14 @@ async function run() {
       const booking = await carToolsCollection.findOne(query);
       res.send(booking);
     });
+    // Remove Car product
+    app.delete("/carTools/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await carToolsCollection.deleteOne(query);
+      res.send(result);
+    });
+    // Booking
     // car Booking
     app.post("/carBooking", async (req, res) => {
       const newProducts = req.body;
