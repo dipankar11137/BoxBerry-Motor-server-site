@@ -30,6 +30,7 @@ async function run() {
     const carToolsBookingCollection = client
       .db("boxBerry-motor")
       .collection("carToolsBooking");
+    const reviewCollection = client.db("boxBerry-motor").collection("review");
 
     //  Camera products
     app.get("/cameraProducts", async (req, res) => {
@@ -53,6 +54,12 @@ async function run() {
       const cursor = carToolsCollection.find(query);
       const products = await cursor.toArray();
       res.send(products);
+    });
+    // post car products
+    app.post("/carTools", async (req, res) => {
+      const newProduct = req.body;
+      const result = await carToolsCollection.insertOne(newProduct);
+      res.send(result);
     });
 
     app.get("/carTools/:id", async (req, res) => {
@@ -110,7 +117,21 @@ async function run() {
       res.send(result);
     });
 
-    //
+    //review all
+
+    //  get review
+    app.get("/review", async (req, res) => {
+      const query = {};
+      const cursor = reviewCollection.find(query);
+      const products = await cursor.toArray();
+      res.send(products);
+    });
+    // post review
+    app.post("/review", async (req, res) => {
+      const newProduct = req.body;
+      const result = await reviewCollection.insertOne(newProduct);
+      res.send(result);
+    });
   } finally {
   }
 }
