@@ -117,6 +117,24 @@ async function run() {
       );
       res.send(result);
     });
+    // restock car item
+    app.put("/carTools/:id", async (req, res) => {
+      const id = req.params.id;
+      const updateQuantity = req.body;
+      const query = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          quantity: updateQuantity.quantity,
+        },
+      };
+      const result = await carToolsCollection.updateOne(
+        query,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
     //Delete car order item
     app.delete("/carBooking/:id", async (req, res) => {
       const id = req.params.id;
