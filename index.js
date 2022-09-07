@@ -5,6 +5,7 @@ require("dotenv").config();
 
 const app = express();
 const port = process.env.PORT || 5000;
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // use middleware
 app.use(cors());
@@ -31,6 +32,72 @@ async function run() {
       .db("boxBerry-motor")
       .collection("carToolsBooking");
     const reviewCollection = client.db("boxBerry-motor").collection("review");
+    const userCollection = client.db("boxBerry-motor").collection("user");
+
+    //create and update a user
+    app.put("/create-user/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+
+      const filter = { email: email };
+      const options = { upsert: true };
+
+      const updatedDoc = {
+        $set: user,
+      };
+
+      const result = await userCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
+      // const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10d' });
+      res.send(result);
+    });
+
+    //get a single user from DB
+    app.get("/user", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+
+      const result = await userCollection.findOne(query);
+      res.send(result);
+    });
+    //get all users from db
+    app.get("/users", async (req, res) => {
+      const query = {};
+
+      const cursor = userCollection.find(query);
+      const users = await cursor.toArray();
+
+      res.send(users);
+    });
+    // check Admin
+    app.get("/admin/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = await userCollection.findOne({ email: email });
+      const isAdmin = user.role === "admin";
+      res.send({ admin: isAdmin });
+    });
+    // post user admin
+    app.put("/user/admin/:email", async (req, res) => {
+      const email = req.params.email;
+      console.log(email);
+      const requester = req.decoded.email;
+      const requesterAccount = await userCollection.findOne({
+        email: requester,
+      });
+      if (requesterAccount.role === "admin") {
+        const filter = { email: email };
+        const updateDoc = {
+          $set: { role: "admin" },
+        };
+        const result = await userCollection.updateOne(filter, updateDoc);
+        res.send(result);
+      } else {
+        res.status(403).send({ message: "forbidden" });
+      }
+    });
 
     //  Camera products
     app.get("/cameraProducts", async (req, res) => {
@@ -99,6 +166,14 @@ async function run() {
       const bookingEmail = await cursor.toArray();
       res.send(bookingEmail);
     });
+    // car booking get by id
+    app.get("/carBookings/:id", async (req, res) => {
+      const id = req.params.id;
+      // console.log(id);
+      const query = { _id: ObjectId(id) };
+      const booking = await carToolsBookingCollection.findOne(query);
+      res.send(booking);
+    });
     // Minus order and update
     app.put("/carTools/:id", async (req, res) => {
       const id = req.params.id;
@@ -157,6 +232,20 @@ async function run() {
       const newProduct = req.body;
       const result = await reviewCollection.insertOne(newProduct);
       res.send(result);
+
+      // Payment
+      app.post("/payment-system", async (req, res) => {
+        const booking = req.body;
+        const price = booking.price;
+        console.log(booking);
+        const amount = price * 100;
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount: amount,
+          currency: "usd",
+          payment_method_types: ["card"],
+        });
+        res.send({ clientSecret: paymentIntent.client_secret });
+      });
     });
   } finally {
   }
