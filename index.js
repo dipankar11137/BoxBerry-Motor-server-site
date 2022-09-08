@@ -237,9 +237,15 @@ async function run() {
       res.send(result);
 
       // Payment
-      app.get("/payNow", async (req, res) => {
-        console.log("aa");
-      });
+      // app.get("/payNow", async (req, res) => {
+      //   console.log("aa");
+      //   res.send({ message: "Get now" });
+      // });
+
+      // app.get("/test", (req, res) => {
+      //   console.log("vvv");
+      //   res.send({ message: "Get now" });
+      // });
 
       // app.post("/payment-system", async (req, res) => {
       //   console.log("AAA");
@@ -255,17 +261,23 @@ async function run() {
       //   res.send({ clientSecret: paymentIntent.client_secret });
       // });
 
-      // app.post("/create-payment-intent", async (req, res) => {
-      //   const order = req.body;
-      //   const price = order.totalPrice;
-      //   const amount = price * 100;
-      //   const paymentIntent = await stripe.paymentIntents.create({
-      //     amount: amount,
-      //     currency: "usd",
-      //     payment_method_types: ["card"],
-      //   });
-      //   res.send({ clientSecret: paymentIntent.client_secret });
-      // });
+      app.post("/create-payment-intent", async (req, res) => {
+        console.log("sss");
+        const order = req.body;
+        const price = order.totalPrice;
+        const amount = price * 100;
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount: amount,
+          currency: "usd",
+          payment_method_types: ["card"],
+        });
+        res.send(
+          {
+            clientSecret: paymentIntent.client_secret,
+          },
+          { message: "get it" }
+        );
+      });
 
       // payment patch
       app.patch("/carBookings/:id", async (req, res) => {
