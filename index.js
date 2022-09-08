@@ -237,18 +237,35 @@ async function run() {
       res.send(result);
 
       // Payment
-      app.post("/payment-system", async (req, res) => {
-        const booking = req.body;
-        const price = booking.price;
-        console.log(booking);
-        const amount = price * 100;
-        const paymentIntent = await stripe.paymentIntents.create({
-          amount: amount,
-          currency: "usd",
-          payment_method_types: ["card"],
-        });
-        res.send({ clientSecret: paymentIntent.client_secret });
+      app.get("/payNow", async (req, res) => {
+        console.log("aa");
       });
+
+      // app.post("/payment-system", async (req, res) => {
+      //   console.log("AAA");
+      //   const booking = req.body;
+      //   const price = booking.price;
+      //   console.log(booking);
+      //   const amount = price * 100;
+      //   const paymentIntent = await stripe.paymentIntents.create({
+      //     amount: amount,
+      //     currency: "usd",
+      //     payment_method_types: ["card"],
+      //   });
+      //   res.send({ clientSecret: paymentIntent.client_secret });
+      // });
+
+      // app.post("/create-payment-intent", async (req, res) => {
+      //   const order = req.body;
+      //   const price = order.totalPrice;
+      //   const amount = price * 100;
+      //   const paymentIntent = await stripe.paymentIntents.create({
+      //     amount: amount,
+      //     currency: "usd",
+      //     payment_method_types: ["card"],
+      //   });
+      //   res.send({ clientSecret: paymentIntent.client_secret });
+      // });
 
       // payment patch
       app.patch("/carBookings/:id", async (req, res) => {
