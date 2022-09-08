@@ -33,6 +33,9 @@ async function run() {
       .collection("carToolsBooking");
     const reviewCollection = client.db("boxBerry-motor").collection("review");
     const userCollection = client.db("boxBerry-motor").collection("user");
+    const paymentsCollection = client
+      .db("boxBerry-motor")
+      .collection("payments");
 
     //create and update a user
     app.put("/create-user/:email", async (req, res) => {
@@ -245,6 +248,25 @@ async function run() {
           payment_method_types: ["card"],
         });
         res.send({ clientSecret: paymentIntent.client_secret });
+      });
+
+      // payment patch
+      app.patch("/carBookings/:id", async (req, res) => {
+        const id = req.params.id;
+        const payment = req.body;
+        const filter = { _id: ObjectId(id) };
+        const updateDoc = {
+          $set: {
+            paid: true,
+            transactionId: payment.transactionId,
+          },
+        };
+        const result = await paymentsCollection.insertOne(payment);
+        const updateBooking = await carToolsBookingCollection.updateOne(
+          filter,
+          updateDoc
+        );
+        res.send(updateDoc);
       });
     });
   } finally {
